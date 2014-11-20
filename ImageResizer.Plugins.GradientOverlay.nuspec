@@ -17,6 +17,6 @@
     </metadata>
     <files>
         <file src="content\web.config.transform" target="content\web.config.transform" />
-        <file src="lib\net45\ImageResizer.Plugins.GradientOverlay.dll" target="lib\net45\ImageResizer.Plugins.GradientOverlay.dll" />
+        <file src="bin\Release\ImageResizer.Plugins.GradientOverlay.dll" target="lib\net45\ImageResizer.Plugins.GradientOverlay.dll" />
     </files>
 </package>
