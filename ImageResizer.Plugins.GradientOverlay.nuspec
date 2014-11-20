@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>ImageResizer.Plugins.GradientOverlay</id>
+        <version>1.0.1</version>
+        <title>ImageResizer.Plugins.GradientOverlay</title>
+        <authors>Geta</authors>
+        <owners>Geta</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Plugin for ImageResizer that allows for drawing of gradients on top of images.</description>
+        <copyright>Copyright © Geta 2014</copyright>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="ImageResizer" version="3.4.3" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="content\web.config.transform" target="content\web.config.transform" />
+        <file src="lib\net45\ImageResizer.Plugins.GradientOverlay.dll" target="lib\net45\ImageResizer.Plugins.GradientOverlay.dll" />
+    </files>
+</package>
