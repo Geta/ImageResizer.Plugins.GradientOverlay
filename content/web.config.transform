@@ -1,0 +1,5 @@
+<resizer>
+    <plugins>
+        <add name="GradientOverlay" />
+    </plugins>
+</resizer>
