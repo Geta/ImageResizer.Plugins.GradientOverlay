@@ -1,5 +1,7 @@
-<resizer>
-    <plugins>
-        <add name="GradientOverlay" />
-    </plugins>
-</resizer>
+<configuration>
+    <resizer>
+        <plugins>
+            <add name="GradientOverlay" />
+        </plugins>
+    </resizer>    
+</configuration>
