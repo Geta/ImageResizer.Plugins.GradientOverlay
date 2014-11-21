@@ -1,6 +1,8 @@
 ImageResizer.Plugins.GradientOverlay
 ====================================
 
+![fish example](https://raw.githubusercontent.com/Geta/ImageResizer.Plugins.GradientOverlay/master/content/demo.jpg)
+
 ### Parameters
 
 * **gradient** - values '1' or 'true', specifies if plugin should be used.
