@@ -2,6 +2,7 @@ ImageResizer.Plugins.GradientOverlay
 ====================================
 
 ![fish example](https://raw.githubusercontent.com/Geta/ImageResizer.Plugins.GradientOverlay/master/content/demo.jpg)
+
 (no actual fish harmed in the making of this picture, they are latex replicas)
 
 ### Parameters
