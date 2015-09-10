@@ -125,12 +125,10 @@ namespace ImageResizer.Plugins.GradientOverlay
 
         private static unsafe void DrawLinearGradient(BitmapData bitmap, Settings settings)
         {
-            var bpp = Bitmap.GetPixelFormatSize(bitmap.PixelFormat) / 8;
-            var ibpp = 1.0 / bpp;
+            var bpp = Image.GetPixelFormatSize(bitmap.PixelFormat) / 8;
 
             var h = bitmap.Height;
             var w = bitmap.Width;
-            var wb = w * bpp;
 
             var s = bitmap.Stride;
             var s0 = (byte*)bitmap.Scan0;
@@ -157,82 +155,85 @@ namespace ImageResizer.Plugins.GradientOverlay
 
             var clamp = settings.Clamp;
 
-            for (var y = 0; y < h; y++)
+            unchecked
             {
-                var row = s0 + y * s;
-                for (var x = 0; x < w; x++)
+                for (var y = 0; y < h; y++)
                 {
-                    var p = x * bpp;
-                    var b = row[p];
-                    var g = row[p + 1];
-                    var r = row[p + 2];
-                    // Note that we are not reading from, nor assigning to the alpha channel.
-                    // This is to preserve cutouts, for example logotype shapes.
-                    // Alpha is normally located at row[p + 3].
-
-                    // Establish a vector from start to current position
-                    // var fpx = x - fx;
-                    // var fpy = y - fy;
-                    // Inlined
-
-                    // This rather unreadable part projects the vector fp
-                    // to a line segment. k is 0 - 1 (percent) on that line.
-                    // k could be negative or > 1, that means that
-                    // the current point is outside of the bounds of ft
-                    var k = ((x - fx) * ftx + (y - fy) * fty) * iftd;
-                    var ik = 1.0 - k;
-
-                    if (clamp > 0)
-                        k += -clamp + (k * clamp);
-
-                    // If colors are opaque, no need for mixing.
-                    // This assigns the colors directly
-                    // Also clamp the values of k to the range 0 - 1
-                    if (k <= 0)
+                    var row = s0 + y * s;
+                    for (var x = 0; x < w; x++)
                     {
-                        if (c1.A == 255)
+                        var p = x * bpp;
+                        var b = row[p];
+                        var g = row[p + 1];
+                        var r = row[p + 2];
+                        // Note that we are not reading from, nor assigning to the alpha channel.
+                        // This is to preserve cutouts, for example logotype shapes.
+                        // Alpha is normally located at row[p + 3].
+
+                        // Establish a vector from start to current position
+                        // var fpx = x - fx;
+                        // var fpy = y - fy;
+                        // Inlined
+
+                        // This rather unreadable part projects the vector fp
+                        // to a line segment. k is 0 - 1 (percent) on that line.
+                        // k could be negative or > 1, that means that
+                        // the current point is outside of the bounds of ft
+                        var k = ((x - fx) * ftx + (y - fy) * fty) * iftd;
+                        var ik = 1.0 - k;
+
+                        if (clamp > 0)
+                            k += -clamp + (k * clamp);
+
+                        // If colors are opaque, no need for mixing.
+                        // This assigns the colors directly
+                        // Also clamp the values of k to the range 0 - 1
+                        if (k <= 0)
                         {
-                            row[p] = c1.B;
-                            row[p + 1] = c1.G;
-                            row[p + 2] = c1.R;
-                            continue;
+                            if (c1.A == 255)
+                            {
+                                row[p] = c1.B;
+                                row[p + 1] = c1.G;
+                                row[p + 2] = c1.R;
+                                continue;
+                            }
+
+                            k = 0.0;
+                        }
+                        else if (k >= 1)
+                        {
+                            if (c2.A == 255)
+                            {
+                                row[p] = c2.B;
+                                row[p + 1] = c2.G;
+                                row[p + 2] = c2.R;
+                                continue;
+                            }
+
+                            k = 1.0;
                         }
 
-                        k = 0.0;
+                        // Mix colors based on k-value, linearly
+                        var ta = c2.A * k + c1.A * ik;
+                        var tr = c2.R * k + c1.R * ik;
+                        var tg = c2.G * k + c1.G * ik;
+                        var tb = c2.B * k + c1.B * ik;
+
+                        var bl = ta * InvertedByte;
+                        var ibl = 1.0 - bl;
+
+                        // Blend the colors back with original colors from image
+                        row[p] = (byte)(b * ibl + tb * bl);    //Blue  0-255
+                        row[p + 1] = (byte)(g * ibl + tg * bl);    //Green 0-255
+                        row[p + 2] = (byte)(r * ibl + tr * bl);    //Red   0-255
                     }
-                    else if (k >= 1)
-                    {
-                        if (c2.A == 255)
-                        {
-                            row[p] = c2.B;
-                            row[p + 1] = c2.G;
-                            row[p + 2] = c2.R;
-                            continue;
-                        }
-
-                        k = 1.0;
-                    }
-
-                    // Mix colors based on k-value, linearly
-                    var ta = c2.A * k + c1.A * ik;
-                    var tr = c2.R * k + c1.R * ik;
-                    var tg = c2.G * k + c1.G * ik;
-                    var tb = c2.B * k + c1.B * ik;
-
-                    var bl = ta * InvertedByte;
-                    var ibl = 1.0 - bl;
-
-                    // Blend the colors back with original colors from image
-                    row[p] = (byte)(b * ibl + tb * bl);    //Blue  0-255
-                    row[p + 1] = (byte)(g * ibl + tg * bl);    //Green 0-255
-                    row[p + 2] = (byte)(r * ibl + tr * bl);    //Red   0-255
                 }
             }
         }
 
         private static unsafe void DrawRadialGradient(BitmapData bitmap, Settings settings)
         {
-            var bpp = Bitmap.GetPixelFormatSize(bitmap.PixelFormat) / 8;
+            var bpp = Image.GetPixelFormatSize(bitmap.PixelFormat) / 8;
 
             var h = bitmap.Height;
             var w = bitmap.Width;
@@ -258,68 +259,71 @@ namespace ImageResizer.Plugins.GradientOverlay
 
             var clamp = settings.Clamp;
 
-            for (var y = 0; y < h; y++)
+            unchecked
             {
-                var row = s0 + y * s;
-                for (var x = 0; x < w; x++)
+                for (var y = 0; y < h; y++)
                 {
-                    var p = x * bpp;
-                    var b = row[p];
-                    var g = row[p + 1];
-                    var r = row[p + 2];
-
-                    // Establish a vector from origin to current position
-                    var fpx = x - fx;
-                    var fpy = y - fy;
-
-                    // This gets a value k 0 - 1 based on the distance from origin
-                    // Becomes a circular form by design
-                    var k = Math.Sqrt(fpx * fpx + fpy * fpy) * ir;
-                    var ik = 1.0 - k;
-
-                    if (clamp > 0.0)
-                        k += -clamp + (k * clamp);
-
-                    // If colors are opaque, no need for mixing.
-                    // This assigns the colors directly
-                    if (k <= 0)
+                    var row = s0 + y * s;
+                    for (var x = 0; x < w; x++)
                     {
-                        if (c1.A == 255)
+                        var p = x * bpp;
+                        var b = row[p];
+                        var g = row[p + 1];
+                        var r = row[p + 2];
+
+                        // Establish a vector from origin to current position
+                        var fpx = x - fx;
+                        var fpy = y - fy;
+
+                        // This gets a value k 0 - 1 based on the distance from origin
+                        // Becomes a circular form by design
+                        var k = Math.Sqrt(fpx * fpx + fpy * fpy) * ir;
+                        var ik = 1.0 - k;
+
+                        if (clamp > 0.0)
+                            k += -clamp + (k * clamp);
+
+                        // If colors are opaque, no need for mixing.
+                        // This assigns the colors directly
+                        if (k <= 0)
                         {
-                            row[p] = c1.B;
-                            row[p + 1] = c1.G;
-                            row[p + 2] = c1.R;
-                            continue;
+                            if (c1.A == 255)
+                            {
+                                row[p] = c1.B;
+                                row[p + 1] = c1.G;
+                                row[p + 2] = c1.R;
+                                continue;
+                            }
+
+                            k = 0.0;
+                        }
+                        else if (k >= 1)
+                        {
+                            if (c2.A == 255)
+                            {
+                                row[p] = c2.B;
+                                row[p + 1] = c2.G;
+                                row[p + 2] = c2.R;
+                                continue;
+                            }
+
+                            k = 1.0;
                         }
 
-                        k = 0.0;
+                        // Mix colors based on k-value, linearly
+                        var ta = c2.A * k + c1.A * ik;
+                        var tr = c2.R * k + c1.R * ik;
+                        var tg = c2.G * k + c1.G * ik;
+                        var tb = c2.B * k + c1.B * ik;
+
+                        var bl = ta * InvertedByte;
+                        var ibl = 1.0 - bl;
+
+                        // Blend the colors back with original colors from image
+                        row[p] = (byte)(b * ibl + tb * bl);    //Blue  0-255
+                        row[p + 1] = (byte)(g * ibl + tg * bl);    //Green 0-255
+                        row[p + 2] = (byte)(r * ibl + tr * bl);    //Red   0-255
                     }
-                    else if (k >= 1)
-                    {
-                        if (c2.A == 255)
-                        {
-                            row[p] = c2.B;
-                            row[p + 1] = c2.G;
-                            row[p + 2] = c2.R;
-                            continue;
-                        }
-
-                        k = 1.0;
-                    }
-
-                    // Mix colors based on k-value, linearly
-                    var ta = c2.A * k + c1.A * ik;
-                    var tr = c2.R * k + c1.R * ik;
-                    var tg = c2.G * k + c1.G * ik;
-                    var tb = c2.B * k + c1.B * ik;
-
-                    var bl = ta * InvertedByte;
-                    var ibl = 1.0 - bl;
-
-                    // Blend the colors back with original colors from image
-                    row[p] = (byte)(b * ibl + tb * bl);    //Blue  0-255
-                    row[p + 1] = (byte)(g * ibl + tg * bl);    //Green 0-255
-                    row[p + 2] = (byte)(r * ibl + tr * bl);    //Red   0-255
                 }
             }
         }
