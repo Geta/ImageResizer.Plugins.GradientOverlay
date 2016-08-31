@@ -35,10 +35,10 @@ namespace ImageResizer.Plugins.GradientOverlay.Extensions
 
                     case 4:
                     {
-                        var a = Char.ToString(htmlColor[0]);
-                        var r = Char.ToString(htmlColor[1]);
-                        var g = Char.ToString(htmlColor[2]);
-                        var b = Char.ToString(htmlColor[3]);
+                        var a = char.ToString(htmlColor[0]);
+                        var r = char.ToString(htmlColor[1]);
+                        var g = char.ToString(htmlColor[2]);
+                        var b = char.ToString(htmlColor[3]);
 
                         c = Color.FromArgb(Convert.ToInt32(a + a, 16),
                             Convert.ToInt32(r + r, 16),
@@ -49,9 +49,9 @@ namespace ImageResizer.Plugins.GradientOverlay.Extensions
 
                     default:
                     {
-                        var r = Char.ToString(htmlColor[0]);
-                        var g = Char.ToString(htmlColor[1]);
-                        var b = Char.ToString(htmlColor[2]);
+                        var r = char.ToString(htmlColor[0]);
+                        var g = char.ToString(htmlColor[1]);
+                        var b = char.ToString(htmlColor[2]);
 
                         c = Color.FromArgb(Convert.ToInt32(r + r, 16),
                             Convert.ToInt32(g + g, 16),

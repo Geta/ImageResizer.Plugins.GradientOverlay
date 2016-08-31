@@ -14,5 +14,8 @@ namespace ImageResizer.Plugins.GradientOverlay
 
         public Color FirstColor { get; set; }
         public Color SecondColor { get; set; }
+        public Color FillColor { get; set; }
+
+        public bool Mirrored { get; set; }
     }
 }
