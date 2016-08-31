@@ -13,4 +13,6 @@ ImageResizer.Plugins.GradientOverlay
 * **gend** - values x or x,y (0 - 100), end position of gradient (default 0,100 for l-gradient 100,100 for r-gradient)
 * **gcstart** - gradient start color, hexadecimal color value (argb shorthand f000 or full ff000000 are accepted)(default 0000).
 * **gcend** - gradient end color, hexadecimal color value (argb shorthand f000 or full ff000000 are accepted)(default f000).
+* **gcfill** - applies a fill color on top of gradient, hexadecimal color value (argb shorthand f000 or full ff000000 are accepted)(default f000).
 * **gclamp** - center clamping (useful for r-gradients), amount the center value should be pushed outwards (0-100 percent from start to end)(default 0).
+* **gmirror** - values '1' or 'true', specifies if wrapping of gradient should be mirrored (default is to clamp start/end).
