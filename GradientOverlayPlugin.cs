@@ -163,8 +163,6 @@ namespace ImageResizer.Plugins.GradientOverlay
             var clamp = settings.Clamp;
             var mirrored = settings.Mirrored;
 
-            double pk = -1.0, tr = 0.0, tg = 0.0, tb = 0.0, bl = 0.0, ibl = 0.0;
-
             unchecked
             {
                 for (var y = 0; y < h; y++)
@@ -173,17 +171,6 @@ namespace ImageResizer.Plugins.GradientOverlay
                     for (var x = 0; x < w; x++)
                     {
                         var p = x * bpp;
-                        var b = row[p];
-                        var g = row[p + 1];
-                        var r = row[p + 2];
-                        // Note that we are not reading from, nor assigning to the alpha channel.
-                        // This is to preserve cutouts, for example logotype shapes.
-                        // Alpha is normally located at row[p + 3].
-
-                        // Establish a vector from start to current position
-                        // var fpx = x - fx;
-                        // var fpy = y - fy;
-                        // Inlined
 
                         // This rather unreadable part projects the vector fp
                         // to a line segment. k is 0 - 1 (percent) on that line.
@@ -235,34 +222,39 @@ namespace ImageResizer.Plugins.GradientOverlay
 
                         var ik = 1.0 - k;
 
-                        // Skip calculation if previous values are unchanged
-                        // Optimization of exactly 90 degree linear gradients
-                        if (k != pk)
-                        {
-                            // Mix colors based on k-value, linearly
-                            var ta = c2.A * k + c1.A * ik;
-                            tr = c2.R * k + c1.R * ik;
-                            tg = c2.G * k + c1.G * ik;
-                            tb = c2.B * k + c1.B * ik;
+                        var b = (double)row[p];
+                        var g = (double)row[p + 1];
+                        var r = (double)row[p + 2];
+                        // Note that we are not reading from, nor assigning to the alpha channel.
+                        // This is to preserve cutouts, for example logotype shapes.
+                        // Alpha is normally located at row[p + 3].
 
-                            bl = ta * InvertedByte;
-                            ibl = 1.0 - bl;
-                        }
+                        // Mix colors based on k-value, linearly
+                        var ta = c2.A * k + c1.A * ik;
+                        var tr = c2.R * k + c1.R * ik;
+                        var tg = c2.G * k + c1.G * ik;
+                        var tb = c2.B * k + c1.B * ik;
 
-                        // Blend the colors back with original colors from image
-                        tb = b * ibl + tb * bl;
-                        tg = g * ibl + tg * bl;
-                        tr = r * ibl + tr * bl;
+                        double bl;
+                        double ibl;
 
                         if (cf.A > 0)
                         {
                             bl = cf.A * InvertedByte;
                             ibl = 1.0 - bl;
 
-                            tb = tb * ibl + cf.B * bl;
-                            tg = tg * ibl + cf.G * bl;
-                            tr = tr * ibl + cf.R * bl;
+                            r = r * ibl + cf.R * bl;
+                            g = g * ibl + cf.G * bl;
+                            b = b * ibl + cf.B * bl;
                         }
+
+                        bl = ta * InvertedByte;
+                        ibl = 1.0 - bl;
+
+                        // Blend the colors back with original colors from image
+                        tb = b * ibl + tb * bl;
+                        tg = g * ibl + tg * bl;
+                        tr = r * ibl + tr * bl;
 
                         row[p] = (byte)tb;    //Blue  0-255
                         row[p + 1] = (byte)tg;    //Green 0-255
@@ -310,17 +302,6 @@ namespace ImageResizer.Plugins.GradientOverlay
                     for (var x = 0; x < w; x++)
                     {
                         var p = x * bpp;
-                        var b = row[p];
-                        var g = row[p + 1];
-                        var r = row[p + 2];
-
-                        if (cf.A == 255)
-                        {
-                            row[p] = cf.B;
-                            row[p + 1] = cf.G;
-                            row[p + 2] = cf.R;
-                            continue;
-                        }
 
                         // Establish a vector from origin to current position
                         var fpx = x - fx;
@@ -329,7 +310,6 @@ namespace ImageResizer.Plugins.GradientOverlay
                         // This gets a value k 0 - 1 based on the distance from origin
                         // Becomes a circular form by design
                         var k = Math.Sqrt(fpx * fpx + fpy * fpy) * ir;
-
                         
                         if (clamp > 0.0)
                             k += -clamp + (k * clamp);
@@ -372,29 +352,36 @@ namespace ImageResizer.Plugins.GradientOverlay
 
                         var ik = 1.0 - k;
 
+                        var b = (double)row[p];
+                        var g = (double)row[p + 1];
+                        var r = (double)row[p + 2];
+
                         // Mix colors based on k-value, linearly
                         var ta = c2.A * k + c1.A * ik;
                         var tr = c2.R * k + c1.R * ik;
                         var tg = c2.G * k + c1.G * ik;
                         var tb = c2.B * k + c1.B * ik;
 
-                        var bl = ta * InvertedByte;
-                        var ibl = 1.0 - bl;
-
-                        // Blend the colors back with original colors from image
-                        tb = b * ibl + tb * bl;
-                        tg = g * ibl + tg * bl;
-                        tr = r * ibl + tr * bl;
+                        double bl;
+                        double ibl;
 
                         if (cf.A > 0)
                         {
                             bl = cf.A * InvertedByte;
                             ibl = 1.0 - bl;
 
-                            tb = tb * ibl + cf.B * bl;
-                            tg = tg * ibl + cf.G * bl;
-                            tr = tr * ibl + cf.R * bl;
+                            r = r * ibl + cf.B * bl;
+                            g = g * ibl + cf.G * bl;
+                            b = b * ibl + cf.R * bl;
                         }
+
+                        bl = ta * InvertedByte;
+                        ibl = 1.0 - bl;
+
+                        // Blend the colors back with original colors from image
+                        tb = b * ibl + tb * bl;
+                        tg = g * ibl + tg * bl;
+                        tr = r * ibl + tr * bl;
 
                         row[p] = (byte)tb;    //Blue  0-255
                         row[p + 1] = (byte)tg;    //Green 0-255
