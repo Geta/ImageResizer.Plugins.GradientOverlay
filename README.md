@@ -1,6 +1,9 @@
 ImageResizer.Plugins.GradientOverlay
 ====================================
 
+* Master<br>
+![](http://tc.geta.no/app/rest/builds/buildType:(id:GetaPackages_ImageResizerPluginsGradientOverlay_00ci),branch:master/statusIcon)
+
 ![fish example](https://raw.githubusercontent.com/Geta/ImageResizer.Plugins.GradientOverlay/master/content/demo.jpg)
 
 (no actual fish harmed in the making of this picture, they are latex replicas)
