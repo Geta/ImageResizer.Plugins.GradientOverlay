@@ -9,6 +9,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Plugin for ImageResizer that allows for drawing of gradients on top of images.</description>
         <copyright>Copyright © Geta 2014</copyright>
+        <repository type="git" url="URL" branch="BRANCH_NAME" commit="COMMIT" />
         <dependencies>
             <group targetFramework=".NETFramework4.5">
                 <dependency id="ImageResizer" version="3.4.3" />
